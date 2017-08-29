@@ -48,9 +48,16 @@ class BaseTranscoder(object):
         return self.meta.get("audio_tracks", [])
 
     @property
+    def mark_in(self):
+        return self.settings.get("mark_in", 0)
+
+    @property
+    def mark_out(self):
+        return self.settings.get("mark_out", 0)
+
+    @property
     def duration(self):
-        #TODO: mark-in / out
-        return self.meta["duration"]
+        return (self.mark_out or self.meta["duration"]) - self.mark_in
 
     # Paths and names
 
