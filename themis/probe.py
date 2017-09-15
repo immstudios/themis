@@ -50,7 +50,8 @@ def probe(source_path, progress_handler=False):
         return False
 
     meta = {
-            "audio_tracks" : []
+            "audio_tracks" : [],
+            "video_index" : -1
         }
 
     format_info = probe_result["format"]
