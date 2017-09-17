@@ -1,7 +1,10 @@
 from nxtools import *
 
-__all__ = ["get_audio_encoding_settings", "get_output_profile"]
-
+__all__ = [
+        "get_audio_profile",
+        "get_video_profile",
+        "get_container_profile"
+    ]
 
 default_bitrates = {
         "dnxhd" : "120M",
@@ -22,9 +25,13 @@ default_audio_codecs = {
     }
 
 
-def get_audio_encoding_settings(**kwargs):
+def get_audio_profile(**kwargs):
     result = []
-    audio_codec = kwargs.get("audio_codec", default_audio_codecs.get("video_codec", False))
+    audio_codec = kwargs.get(
+            "audio_codec",
+            default_audio_codecs.get("video_codec", False)
+        )
+
     if not audio_codec:
         audio_codec = "pcm_s16le"
     result.append(["c:a", audio_codec])
@@ -39,12 +46,7 @@ def get_audio_encoding_settings(**kwargs):
 
 
 
-def get_output_profile(**kwargs):
-
-    #
-    # Video
-    #
-
+def get_video_profile(**kwargs):
     result = [
             ["r", kwargs["frame_rate"]],
             ["pix_fmt", kwargs.get("pixel_format", "yuv422p")],
@@ -67,13 +69,13 @@ def get_output_profile(**kwargs):
         if kwargs["video_codec"] == "libx264":
             result.append(["x264opts", "keyint={g}:min-keyint={g}:no-scenecut".format(g=gop_size)])
 
-    result.extend(get_audio_encoding_settings(**kwargs))
+    return result
 
-    #
-    # Container
-    #
 
-    result.append(["map_metadata", "-1"])
+def get_container_profile(**kwargs):
+    result = [
+            ["map_metadata", "-1"]
+        ]
 
     if kwargs["container"] == "mov" and kwargs["frame_rate"] == 25:
         result.append(["video_track_timescale", 25])
