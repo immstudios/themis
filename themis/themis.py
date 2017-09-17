@@ -59,7 +59,6 @@ class Themis(BaseTranscoder):
         return strip_tracks
 
 
-
     @property
     def reclock_ratio(self):
         source_fps = self.meta["frame_rate"]
@@ -78,18 +77,6 @@ class Themis(BaseTranscoder):
         self.meta.update(extract(self))
 
         return transcode(self)
-
-
-    def clean_up(self):
-        return
-#        for atrack in self.audio_tracks:
-#            for l in [
-#                    atrack.source_audio_path,
-#                    atrack.final_audio_path
-#                    ]:
-#                if os.path.exists(l):
-#                    logging.debug("Removing {}".format(l))
-#                    os.remove(l)
 
 
     def fail_clean_up(self):
