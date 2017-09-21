@@ -17,6 +17,7 @@ class BaseTranscoder(object):
         self.settings.update(kwargs)
         self.meta = probe(self.input_path)
         self.last_progress_time = time.time()
+        self.aborted = False
         if self.meta:
             self.is_ok = True
         else:
@@ -126,9 +127,6 @@ class BaseTranscoder(object):
                 ))
             self.last_progress_time = time.time()
 
-    def process(self):
-        pass
-
     def start(self, **kwargs):
         if not self.output_path:
             self.set_status("Failed. No output specified", level="error")
@@ -149,16 +147,16 @@ class BaseTranscoder(object):
                 "Starting {} transcoder".format(self.__class__.__name__),
                 level="info"
             )
+
         try:
-            result = self.process()
-        except KeyboardInterrupt:
-            print ()
-            self.set_status("Aborted", level="warning")
-            self.fail_clean_up()
-            raise KeyboardInterrupt
+            self.process = self.Process(self)
+            result = self.process.start()
         except Exception:
             log_traceback("Unhandled exception occured during transcoding")
             result = False
+
+        if self.aborted:
+            return True
 
         if not result:
             self.fail_clean_up()
@@ -176,6 +174,13 @@ class BaseTranscoder(object):
                 level="good_news"
             )
         return True
+
+    def abort(self):
+        if self.process:
+            self.process.abort()
+        self.fail_clean_up()
+        self.set_status("Aborted", level="warning")
+        self.aborted = True
 
     #
     # Clean-up
