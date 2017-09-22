@@ -4,23 +4,27 @@ import time
 from nxtools import *
 
 from .base_transcoder import *
-from .output_profile import *
-from .transcoder import *
+#from .output_profile import *
+from .process import *
 
 __all__ = ["Themis"]
 
+
+
 class Themis(BaseTranscoder):
+    Process = ThemisProcess
+
     @property
     def defaults(self):
         return {
-            "container" : "mov",
-            "output_dir" : "output",
+            "container"     : "mov",
+            "output_dir"    : "output",
 
-            "width" : 1920,
-            "height" : 1080,
-            "frame_rate" : 25,
-            "pixel_format" : "yuv422p",
-            "video_codec" : "dnxhd",
+            "width"         : 1920,
+            "height"        : 1080,
+            "frame_rate"    : 25,
+            "pixel_format"  : "yuv422p",
+            "video_codec"   : "dnxhd",
 
             # optional
 
@@ -43,20 +47,8 @@ class Themis(BaseTranscoder):
             "loudness"      : False,  # Normalize audio (LUFS)
             "logo"          : False,  # Path to logo to burn in
 
-            "strip_tracks"   : 2,    # 0 - keep all audio tracks, 1 - Keep only first track, 2 - Keep only first track or keep all if they are mono
-            "to_stereo"      : True, # Mixdown multichannel audio tracks to stereo
+            "audio_mode"    : 0,
         }
-
-
-    @property
-    def strip_tracks(self):
-        if not self["strip_tracks"]:
-            return False
-        strip_tracks = self["strip_tracks"]
-        if list(set([ track["channels"] for track in self.audio_tracks])) == 1:
-            if strip_tracks == 2 and self.audio_tracks[0]["channels"] == 1:
-                return False
-        return strip_tracks
 
 
     @property
@@ -66,17 +58,6 @@ class Themis(BaseTranscoder):
         if source_fps >= profile_fps or profile_fps - source_fps > 3:
             return None
         return float(profile_fps) / source_fps
-
-
-    def process(self):
-        logging.debug("{}: Has {} audio track(s)".format(self.friendly_name, len(self.audio_tracks)))
-        if self.audio_tracks and self.strip_tracks:
-            logging.debug("{}: Stripping audio tracks".format(self.friendly_name))
-            self.meta["audio_tracks"] = [self.audio_tracks[0]]
-
-        self.meta.update(extract(self))
-
-        return transcode(self)
 
 
     def fail_clean_up(self):
