@@ -11,7 +11,7 @@ from .output_profile import *
 
 __all__ = ["ThemisProcess"]
 
-enable_ffmpeg_debug()
+#enable_ffmpeg_debug()
 
 
 def themis_arc(w, h, sw, sh, aspect, **kwargs):
@@ -55,8 +55,6 @@ class ThemisProcess(object):
         self.on_abort = analyser.stop
         new_meta = analyser.work()
         self.on_abort = False
-        if not new_meta:
-            return False
         parent.meta.update(new_meta)
 
         #
