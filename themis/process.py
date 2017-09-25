@@ -63,7 +63,7 @@ class ThemisProcess(object):
 
         tempo = parent.reclock_ratio
         source_duration = parent.meta["num_frames"] / float(parent.meta["frame_rate"])
-        target_duration = source_duration * tempo if tempo else source_duration
+        target_duration = source_duration / tempo if tempo else source_duration
 
         input_format = []
         output_format = []
